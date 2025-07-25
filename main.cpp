@@ -1,90 +1,82 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+// # HEADERS
+#include "character.h"
+#include "inventory.h"
+#include "functions.h"
+#include "world.h"
+
+// # OTHER
 #include <string>
 #include <ctime>
 #include <random>
 #include <limits>
+#include <cstdlib>
+
+#include "windows.h"
 #include <iostream>
 using namespace std;
 
+void setColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
 // # 5 characters to control
-
-struct Character {
-    public:
-        string name;
-        int strength;
-        int intelligence;
-        int charisma;
-
-        int health;
-        int morale;
-        int fatigue;
-        int loyalty;
-        
-        string roles;
-};
-
-struct Inventory {
-    public:
-        // # Meat + Fish
-        int cow = 0;
-        int pig = 0;
-        int chicken = 0;
-
-        // # Grain
-        int corn = 0;
-        int rice = 0;
-        int wild_rice = 0;
-        int oats = 0;
-
-        // # Fruit
-        int strawberries = 0;
-        int apples = 0;
-        int peaches = 0;
-
-        // # Dairy Products
-        int milk = 0;
-        int cheese = 0;
-
-        // Processed + Cooked Food
-        int biscuits = 0;
-
-        // Drinks
-        int apple_juice = 0;
-};
 
 void start();
 void stats();
 void inventory_stats();
+
+float getSmoothNoise(int x, int y, unsigned int seed);
+char getTerrain(float noise);
+string getRandomFromList(const string options[], int size, unsigned int seed);
+World generateWorldMeta(unsigned int seed);
+void generateTerrain(unsigned int seed);
+void printWorldMap();
+void printWorldMeta(const World& w);
+// void worldGen();
 
 string story = "After centuries of silent drift through the void, the colony ship finally arrived at its destination — a pale-blue world nestled in the arms of a distant star. Its hull was scarred from micrometeorites, and its systems aged but intact. The cryopods began to hiss open one by one, releasing descendants of a long-forgotten Earth into the light of a new sun. This was not a landing—it was a rebirth.";
 
 Character characters[5];
 Inventory inventory;
 
-int getValidNumber() {
-    int input;
-    while (true) {
-        cout << "Enter a number: ";
-        cin >> input;
 
-        if (cin.fail()) {
-            cin.clear(); // clear the fail state
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // flush bad input
-            cout << "Invalid input. Please enter a number.\n";
-        } else {
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // flush leftover input
-            return input;
-        }
-    }
-}
 
 int main() {
+    unsigned int seed;
+
     srand(time(NULL));
     start();
+    
     system("cls");
+    
     cout << "This is the story..." << endl;
     cout << story << endl;
+    
     stats();
     inventory_stats();
+    
+    system("Pause");
+    system("cls");
+    cout << "Enter seed: ";
+    cin >> seed;
+    World myWorld = generateWorldMeta(seed);
+    generateTerrain(seed);
+
+    printWorldMeta(myWorld);
+    printWorldMap();
+    system("Pause");
+    system("cls");
+    cout << "*****************************************************************" << endl;
+    cout << "\n";
+    setColor(6);
+    cout << "****************** SPACE COLONY SIMULATOR ***********************" << endl;
+    setColor(0);
+    cout << "\n";
+    cout << "*****************************************************************" << endl;
+    cout << "After a long journey through deep space,\nthe colony ship Auroras Hope veered off course during its final descent,\npulled in by the unexpected gravity of an uncharted planet.\nSystems failed one by one—navigation,\ncomms,\nengines,\nuntil the ship plummeted through the dense atmosphere, fire trailing from its hull.\nThe crash was violent, scattering debris across a jagged alien landscape.\nMiraculously, five survivors emerged from the wreckage,\nbruised but alive, surrounded by a strange and hostile world.\nWith no way to contact Earth and dwindling supplies,\nthey knew one thing for certain: this planet\nwas their new home—whether they were ready or not." << endl;
     system("Pause");
     return 0;
 }
@@ -93,8 +85,8 @@ void stats() {
     int randomStats;
     int stats_input;
     int character_stats;
-
     cout << "Time to name the team" << endl;
+    cout << " *********** NAMING **************" << endl;
     for (int i = 1; i <= 5; i++) {
         switch (i) {
             case 1:
@@ -166,9 +158,8 @@ void stats() {
                 else {
                     characters[i].charisma = stats_input;
                 }
+            }
             break;
-    
-    }
         case 2:
             for (int i = 0; i < sizeof(characters)/sizeof(characters[0]); i++) {
                 // Strength
@@ -404,10 +395,104 @@ void inventory_stats() {
     } while (input != 8);
 }
 
+// # WORLD GEN
+
+// char getTile() {
+//     int r = rand() % 100;
+//     if (r < 20) return 'W';
+//     else if (r < 45) return 'F';
+//     else if (r < 65) return 'M';
+//     else return 'P';
+// }
+
+// void generateWorld(int width, int height) {
+//     for (int y = 0; y < height; y++) {
+//         for (int x = 0; x < width; x++) {
+//             cout << getTile() << ' ';
+//         }
+//         cout << '\n';
+//     }
+// }
+
+const int WIDTH = 20;
+const int HEIGHT = 10;
+char world[HEIGHT][WIDTH];
+
+float getSmoothNoise(int x, int y, unsigned int seed) {
+    srand(x * 49632 + y * 325176 + seed); 
+    return static_cast<float>(rand()) / RAND_MAX;
+}
+
+char getTerrain(float noise) {
+    if (noise < 0.2f) return 'W';   // Water
+    if (noise < 0.4f) return '*';   // Plains
+    if (noise < 0.6f) return 'F';   // Forest
+    if (noise < 0.8f) return '^';   // Hills
+    return '#';                     // Mountain
+}
+
+string getRandomFromList(const string options[], int size, unsigned int seed) {
+    srand(seed);
+    return options[rand() % size];
+}
+
+World generateWorldMeta(unsigned int seed) {
+    World worldMeta;
+
+    const string planetTypes[] = {"Icy", "Rocky", "Volcanic", "Oceanic", "Desert"};
+    const string atmospheres[] = {"Breathable", "Thin", "Toxic", "None"};
+
+    worldMeta.name = "Planet-" + to_string(seed % 10000);
+    worldMeta.type = getRandomFromList(planetTypes, 5, seed + 1);
+    worldMeta.atmosphere = getRandomFromList(atmospheres, 4, seed + 2);
+
+    srand(seed + 3);
+    worldMeta.gravity = 0.5f + static_cast<float>(rand()) / RAND_MAX;      // 0.5 to 1.5
+    worldMeta.avgTemperature = -50 + rand() % 151;                         // -50 to 100 C
+    worldMeta.dayLength = 10 + rand() % 100;                               // 10 to 110 minutes
+    worldMeta.radiationLevel = rand() % 4;                                 // 0–3
+
+    return worldMeta;
+}
+
+void generateTerrain(unsigned int seed) {
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
+            float noise = getSmoothNoise(x, y, seed);
+            world[y][x] = getTerrain(noise);
+        }
+    }
+}
+
+void printWorldMap() {
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
+            std::cout << world[y][x] << ' ';
+        }
+        std::cout << '\n';
+    }
+}
+
+void printWorldMeta(const World& w) {
+    std::cout << "Planet Name: " << w.name << '\n';
+    std::cout << "Type: " << w.type << '\n';
+    std::cout << "Atmosphere: " << w.atmosphere << '\n';
+    std::cout << "Gravity: " << w.gravity << '\n';
+    std::cout << "Average Temp: " << w.avgTemperature << " C\n";
+    std::cout << "Day Length: " << w.dayLength << " min\n";
+    std::cout << "Radiation Level: " << w.radiationLevel << "\n\n";
+}
+
 void start() {
     int input;
     do {
         system("cls");
+        cout << "**********************************" << endl;
+        cout << "**********************************" << endl;
+        setColor()
+        cout << "*      Space Colony Simulator    *" << endl;
+        cout << "**********************************" << endl;
+        cout << "**********************************" << endl;
         cout << "1 - Embark" << endl;
         cout << "2 - About" << endl;
         cout << "3 - Quit" << endl;

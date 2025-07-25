@@ -1,0 +1,74 @@
+IDEAS:
+
+// # DONE
+Naming *
+Stats *
+Inventory *
+World Generation *
+
+// # TODO:
+
+4. Base Building.
+    - Text-based choices to expand or upgrade shelter, solar panels, greenhouse, medical tent.
+    - Each structure may cost resources and time to build.
+
+5. Random Events.
+    - Meteor showers, alien signals, equipment malfunctions, colonist arguments, hallucinations.
+    - Choose how to respond with branching consequences.
+
+6. Exploration Missions
+    - Send 1-3 characters on off-map missions (abandoned station, underground cavern, unknown signal).
+    - Results depend on stats equipment, choices, and randomness.
+
+7. Tech Tree or Research
+    - Spend resources/time to unlock tools, defenses, medicine, terraforming, AI helpers.
+
+8. Weather or Planet Conditions
+    - Harsh weather events: acid rain, radiation storms, eclipses.
+    - Influence what can be done each day or damage the base.
+
+// Narrative & Decision-Making
+
+9. Character Relationships
+    - Characters can bond, argue, or betray each other.
+    - Dynamic loyalty/friendship systems.
+    - Events where two disagree and you must pick a side.
+
+10. Moral Dilemmas
+    - Example, "A crew member is infected. Quarantine, experiment, or try to treat?"
+    - Long-term effects from early decisions.
+
+11. Memory System
+    - Characters remember your past choices and act accordingly. ("You left me behind once. Why should I trust you now?")
+
+12. Inventory & equipment
+    - Manage tools, food, oxygen tanks, weapons, etc.
+    - Equip characters for different tasks.
+
+13. Resource Management
+    - Food, oxygen, energy, water, scrap metal, etc.
+    - Constant balancing act to keep the colony alive.
+
+14. Survival Challenges
+    - Illness, mental breakdowns, starvation, etc.
+    - Rest and morale managment are key.
+
+14. Victory or Endings
+    - Multiple endings based on colony condition, character fates, and moral paths:
+        -- Escape Planet.
+        -- Create a sustainable colony.
+        -- Everyone dies.
+        -- Alien contact ending.
+
+*
+15. Procedural Planet Generation
+    - Different hazards/resources per playthrough.
+
+16. AI Log Entries
+    - Slowly reveal lore via computer logs or alien ruins.
+
+17. Psych profiles
+    - Each character has hidden trais that emerge under pressure.
+
+18. Mutations or Supernatural Elements
+    - For a sci-fi twist.
